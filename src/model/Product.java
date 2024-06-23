@@ -1,5 +1,7 @@
 package model;
 
+import java.util.List;
+
 abstract class Product
 {
     long id;
@@ -7,4 +9,6 @@ abstract class Product
     String name;
     double value;
     String description;
+
+    List<ProductInWarehouse> warehousesStoring;
 }
