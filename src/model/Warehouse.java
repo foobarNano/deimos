@@ -1,12 +1,20 @@
 package model;
 
-import java.util.List;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
-class Warehouse
+@DatabaseTable
+public class Warehouse
 {
-    long id;
-    String location;
-    double sales_tax;
+    @DatabaseField(generatedId = true)
+    public long id;
+    @DatabaseField
+    public String location;
+    @DatabaseField(canBeNull = false)
+    public double sales_tax;
 
-    List<ProductInWarehouse> productsStored;
+    @ForeignCollectionField(eager = false)
+    public ForeignCollection<ProductInWarehouse> productsStored;
 }

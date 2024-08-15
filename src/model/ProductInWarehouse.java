@@ -1,10 +1,18 @@
 package model;
 
-class ProductInWarehouse
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable
+public class ProductInWarehouse
 {
-    Product product;
-    Warehouse warehouse;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
+    public Product product;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
+    public Warehouse warehouse;
     
-    int count;
-    int maximum;
+    @DatabaseField(canBeNull = false)
+    public int count;
+    @DatabaseField
+    public int maximum;
 }

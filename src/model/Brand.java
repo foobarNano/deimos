@@ -8,16 +8,17 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable
 public class Brand
 {
-    @DatabaseField(generatedId = true)
-    long id;
-    @DatabaseField(canBeNull = false)
-    String name;
-    @DatabaseField(canBeNull = false)
-    Type type;
-    @ForeignCollectionField(eager = false)
-    ForeignCollection<Product> products;
 
-    enum Type
+    @DatabaseField(generatedId = true)
+    public long id;
+    @DatabaseField(canBeNull = false, unique = true)
+    public String name;
+    @DatabaseField(canBeNull = false)
+    public Type type;
+    @ForeignCollectionField(eager = false)
+    public ForeignCollection<Product> products;
+
+    public enum Type
     {
         Federal,
         Union,

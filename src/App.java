@@ -1,9 +1,11 @@
 import controller.AppSystem;
+import model.Brand;
 
 public class App
 {
     public static void main(String[] args)
     {
-        new AppSystem().pullDB();
+        AppSystem as = new AppSystem();
+        as.pullDB();
     }
 }
