@@ -1,5 +1,4 @@
 import controller.AppSystem;
-import model.Brand;
 
 public class App
 {

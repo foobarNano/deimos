@@ -1,6 +1,8 @@
 package controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -53,32 +55,7 @@ public class AppSystem
         }   
     }
 
-    public void pushProduct(Product product)
-    {
-        try
-        {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
-            Dao<Product, Long> productDao = DaoManager.createDao(destination, Product.class);
-
-            if (product.id <= 0)
-            {
-                productDao.create(product);
-                products.add(product);
-            }
-            else
-            {
-                productDao.update(product);
-            }
-
-            destination.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    public void pushBrand(Brand brand)
+    public int pushBrand(Brand brand)
     {
         try
         {
@@ -96,14 +73,16 @@ public class AppSystem
             }
 
             destination.close();
+            return 0;
         }
         catch (Exception e)
         {
             e.printStackTrace();
+            return 1;
         }
     }
-
-    public void popBrand(Brand brand)
+    
+    public int popBrand(Brand brand)
     {
         try
         {
@@ -113,10 +92,154 @@ public class AppSystem
             brandDao.delete(brand);
 
             destination.close();
+            return 0;
         }
         catch (Exception e)
         {
             e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int pushProduct(Product product)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Product, Long> productDao = DaoManager.createDao(destination, Product.class);
+
+            if (product.id <= 0)
+            {
+                productDao.create(product);
+                products.add(product);
+            }
+            else
+            {
+                productDao.update(product);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popProduct(Product product)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Product, Long> productDao = DaoManager.createDao(destination, Product.class);
+
+            productDao.delete(product);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int pushWarehouse(Warehouse warehouse)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Warehouse, Long> warehouseDao = DaoManager.createDao(destination, Warehouse.class);
+
+            if (warehouse.id <= 0)
+            {
+                warehouseDao.create(warehouse);
+                warehouses.add(warehouse);
+            }
+            else
+            {
+                warehouseDao.update(warehouse);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popWarehouse(Warehouse warehouse)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Warehouse, Long> warehouseDao = DaoManager.createDao(destination, Warehouse.class);
+
+            warehouseDao.delete(warehouse);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int pushProductInWarehouse(ProductInWarehouse piw)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<ProductInWarehouse, Long> piwDao = DaoManager.createDao(destination, ProductInWarehouse.class);
+
+            Map<String, Object> fieldValues = new HashMap<>();
+            fieldValues.put("product_id", piw.product.id);
+            fieldValues.put("warehouse_id", piw.warehouse.id);
+
+            if (piwDao.queryForFieldValues(fieldValues).isEmpty())
+            {
+                piwDao.create(piw);
+                productsInWarehouses.add(piw);
+            }
+            else
+            {
+                piwDao.update(piw);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popProductInWarehouse(ProductInWarehouse piw)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<ProductInWarehouse, Long> piwDao = DaoManager.createDao(destination, ProductInWarehouse.class);
+
+            piwDao.delete(piw);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
         }
     }
     

@@ -15,4 +15,11 @@ public class ProductInWarehouse
     public int count;
     @DatabaseField
     public int maximum;
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        ProductInWarehouse piw = (ProductInWarehouse) obj;
+        return this.warehouse == piw.warehouse && this.product == piw.product;
+    }
 }
