@@ -10,8 +10,13 @@ import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import model.Brand;
+import model.Designation;
+import model.Drug;
+import model.Equipment;
+import model.Ingredient;
 import model.Product;
 import model.ProductInWarehouse;
+import model.Supplement;
 import model.Warehouse;
 
 public class AppSystem
@@ -25,6 +30,11 @@ public class AppSystem
     private List<Product> products = null;
     private List<Warehouse> warehouses = null;
     private List<ProductInWarehouse> productsInWarehouses = null;
+    private List<Drug> drugs = null;
+    private List<Ingredient> ingredients = null;
+    private List<Supplement> supplements = null;
+    private List<Designation> designations = null;
+    private List<Equipment> equipments = null;
 
     public void pullDB()
     {
@@ -36,16 +46,31 @@ public class AppSystem
             TableUtils.createTableIfNotExists(source, Product.class);
             TableUtils.createTableIfNotExists(source, Warehouse.class);
             TableUtils.createTableIfNotExists(source, ProductInWarehouse.class);
+            TableUtils.createTableIfNotExists(source, Ingredient.class);
+            TableUtils.createTableIfNotExists(source, Drug.class);
+            TableUtils.createTableIfNotExists(source, Designation.class);
+            TableUtils.createTableIfNotExists(source, Supplement.class);
+            TableUtils.createTableIfNotExists(source, Equipment.class);
 
             Dao<Brand, Long> brandDao = DaoManager.createDao(source, Brand.class);
             Dao<Product, Long> productDao = DaoManager.createDao(source, Product.class);
             Dao<Warehouse, Long> warehouseDao = DaoManager.createDao(source, Warehouse.class);
             Dao<ProductInWarehouse, Long> productInWarehouseDao = DaoManager.createDao(source, ProductInWarehouse.class);
+            Dao<Ingredient, Long> ingredientDao = DaoManager.createDao(source, Ingredient.class);
+            Dao<Drug, Long> drugDao = DaoManager.createDao(source, Drug.class);
+            Dao<Designation, Long> designationDao = DaoManager.createDao(source, Designation.class);
+            Dao<Supplement, Long> supplementDao = DaoManager.createDao(source, Supplement.class);
+            Dao<Equipment, Long> equipmentDao = DaoManager.createDao(source, Equipment.class);
 
             brands = brandDao.queryForAll();
             products = productDao.queryForAll();
             warehouses = warehouseDao.queryForAll();
             productsInWarehouses = productInWarehouseDao.queryForAll();
+            ingredients = ingredientDao.queryForAll();
+            drugs = drugDao.queryForAll();
+            designations = designationDao.queryForAll();
+            supplements = supplementDao.queryForAll();
+            equipments = equipmentDao.queryForAll();
 
             source.close();
         }
@@ -232,6 +257,236 @@ public class AppSystem
             Dao<ProductInWarehouse, Long> piwDao = DaoManager.createDao(destination, ProductInWarehouse.class);
 
             piwDao.delete(piw);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+    
+    public int pushIngredient(Ingredient ingredient)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Ingredient, Long> ingredientDao = DaoManager.createDao(destination, Ingredient.class);
+
+            if (ingredient.id <= 0)
+            {
+                ingredientDao.create(ingredient);
+                ingredients.add(ingredient);
+            }
+            else
+            {
+                ingredientDao.update(ingredient);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popIngredient(Ingredient ingredient)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Ingredient, Long> ingredientDao = DaoManager.createDao(destination, Ingredient.class);
+
+            ingredientDao.delete(ingredient);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int pushDrug(Drug drug)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Drug, Long> drugDao = DaoManager.createDao(destination, Drug.class);
+
+            if (drug.id <= 0)
+            {
+                drugDao.create(drug);
+                drugs.add(drug);
+            }
+            else
+            {
+                drugDao.update(drug);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popDrug(Drug drug)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Drug, Long> drugDao = DaoManager.createDao(destination, Drug.class);
+
+            drugDao.delete(drug);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int pushDesignation(Designation designation)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Designation, Long> designationDao = DaoManager.createDao(destination, Designation.class);
+
+            if (designation.id <= 0)
+            {
+                designationDao.create(designation);
+                designations.add(designation);
+            }
+            else
+            {
+                designationDao.update(designation);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popDesignation(Designation designation)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Designation, Long> designationDao = DaoManager.createDao(destination, Designation.class);
+
+            designationDao.delete(designation);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int pushSupplement(Supplement supplement)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Supplement, Long> supplementDao = DaoManager.createDao(destination, Supplement.class);
+
+            if (supplement.id <= 0)
+            {
+                supplementDao.create(supplement);
+                supplements.add(supplement);
+            }
+            else
+            {
+                supplementDao.update(supplement);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popSupplement(Supplement supplement)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Supplement, Long> supplementDao = DaoManager.createDao(destination, Supplement.class);
+
+            supplementDao.delete(supplement);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int pushEquipment(Equipment equipment)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Equipment, Long> equipmentDao = DaoManager.createDao(destination, Equipment.class);
+
+            if (equipment.id <= 0)
+            {
+                equipmentDao.create(equipment);
+                equipments.add(equipment);
+            }
+            else
+            {
+                equipmentDao.update(equipment);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popEquipment(Equipment equipment)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Equipment, Long> equipmentDao = DaoManager.createDao(destination, Equipment.class);
+
+            equipmentDao.delete(equipment);
 
             destination.close();
             return 0;

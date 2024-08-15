@@ -1,8 +1,10 @@
 package model;
 
-import java.util.List;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.ForeignCollectionField;
 
-class Supplement extends Product
+public class Supplement extends Product
 {
-    List<Designation> designations;
+    @ForeignCollectionField(eager = false)
+    ForeignCollection<Designation> designations;
 }

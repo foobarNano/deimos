@@ -1,12 +1,20 @@
 package model;
 
-import java.util.List;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
-class Designation
+@DatabaseTable
+public class Designation
 {
-    long id;
+    @DatabaseField(generatedId = true)
+    public long id;
+    @DatabaseField(width = 64, canBeNull = false)
     String short_description;
+    @DatabaseField(width = 512, canBeNull = true)
     String long_description;
 
-    List<Designation> supplements;
+    @ForeignCollectionField(eager = false)
+    ForeignCollection<Designation> supplements;
 }

@@ -1,7 +1,13 @@
 package model;
 
-class Ingredient    // For normalization purposes
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable
+public class Ingredient    // For normalization purposes
 {
-    long id;
+    @DatabaseField(generatedId = true)
+    public long id;
+    @DatabaseField
     String name;
 }
