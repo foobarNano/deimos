@@ -14,6 +14,7 @@ import model.Designation;
 import model.Drug;
 import model.Equipment;
 import model.Ingredient;
+import model.Order;
 import model.Product;
 import model.ProductInWarehouse;
 import model.Supplement;
@@ -35,6 +36,7 @@ public class AppSystem
     private List<Supplement> supplements = null;
     private List<Designation> designations = null;
     private List<Equipment> equipments = null;
+    private List<Order> orders = null;
 
     public void pullDB()
     {
@@ -51,6 +53,7 @@ public class AppSystem
             TableUtils.createTableIfNotExists(source, Designation.class);
             TableUtils.createTableIfNotExists(source, Supplement.class);
             TableUtils.createTableIfNotExists(source, Equipment.class);
+            TableUtils.createTableIfNotExists(source, Order.class);
 
             Dao<Brand, Long> brandDao = DaoManager.createDao(source, Brand.class);
             Dao<Product, Long> productDao = DaoManager.createDao(source, Product.class);
@@ -61,6 +64,7 @@ public class AppSystem
             Dao<Designation, Long> designationDao = DaoManager.createDao(source, Designation.class);
             Dao<Supplement, Long> supplementDao = DaoManager.createDao(source, Supplement.class);
             Dao<Equipment, Long> equipmentDao = DaoManager.createDao(source, Equipment.class);
+            Dao<Order, Long> orderDao = DaoManager.createDao(source, Order.class);
 
             brands = brandDao.queryForAll();
             products = productDao.queryForAll();
@@ -71,6 +75,7 @@ public class AppSystem
             designations = designationDao.queryForAll();
             supplements = supplementDao.queryForAll();
             equipments = equipmentDao.queryForAll();
+            orders = orderDao.queryForAll();
 
             source.close();
         }
@@ -497,9 +502,60 @@ public class AppSystem
             return 1;
         }
     }
+
+    public int pushOrder(Order order)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Order, Long> orderDao = DaoManager.createDao(destination, Order.class);
+
+            if (order.id <= 0)
+            {
+                orderDao.create(order);
+                orders.add(order);
+            }
+            else
+            {
+                orderDao.update(order);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popOrder(Order order)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<Order, Long> orderDao = DaoManager.createDao(destination, Order.class);
+
+            orderDao.delete(order);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
     
     public List<Brand> getBrands() { return brands; }
     public List<Product> getProducts() { return products; }
     public List<Warehouse> getWarehouses() { return warehouses; }
     public List<ProductInWarehouse> getProductsInWarehouses() { return productsInWarehouses; }
+    public List<Drug> getDrugs() { return drugs; }
+    public List<Ingredient> getIngredients() { return ingredients; }
+    public List<Supplement> getSupplements() { return supplements; }
+    public List<Designation> getDesignations() { return designations; }
+    public List<Equipment> getEquipments() { return equipments; }
 }

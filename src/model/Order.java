@@ -1,17 +1,28 @@
 package model;
 
 import java.sql.Timestamp;
-import java.util.List;
 
-class Order
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable
+public class Order
 {
-    long id;
+    @DatabaseField(generatedId = true)
+    public long id;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     Client client;
+    @DatabaseField
     Timestamp placed;
+    @DatabaseField
     Timestamp confirmed;
+    @DatabaseField
     Timestamp completed;
 
-    List<Product> products;
+    @ForeignCollectionField
+    ForeignCollection<Product> products;
 
     double getValue()
     {

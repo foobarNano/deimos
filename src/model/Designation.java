@@ -16,5 +16,5 @@ public class Designation
     String long_description;
 
     @ForeignCollectionField(eager = false)
-    ForeignCollection<Designation> supplements;
+    ForeignCollection<Supplement> supplements;
 }
