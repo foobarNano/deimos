@@ -21,7 +21,7 @@ public class Order
     @DatabaseField
     Timestamp completed;
 
-    @ForeignCollectionField
+    @ForeignCollectionField(eager = false)
     ForeignCollection<ProductInOrder> productsOrdered;
 
     double getValue()

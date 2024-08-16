@@ -4,7 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
-abstract class Person
+public abstract class Person
 {
     @DatabaseField(generatedId = true)
     long id;

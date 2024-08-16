@@ -10,11 +10,15 @@ import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import model.Brand;
+import model.Client;
 import model.Designation;
 import model.Drug;
+import model.Employee;
 import model.Equipment;
+import model.Grade;
 import model.Ingredient;
 import model.Order;
+import model.Person;
 import model.Product;
 import model.ProductInOrder;
 import model.ProductInWarehouse;
@@ -39,6 +43,10 @@ public class AppSystem
     private List<Equipment> equipments = null;
     private List<Order> orders = null;
     private List<ProductInOrder> productsInOrders = null;
+    private List<Person> people = null;
+    private List<Client> clients = null;
+    private List<Grade> grades = null;
+    private List<Employee> employees = null;
 
     public void pullDB()
     {
@@ -57,6 +65,10 @@ public class AppSystem
             TableUtils.createTableIfNotExists(source, Equipment.class);
             TableUtils.createTableIfNotExists(source, Order.class);
             TableUtils.createTableIfNotExists(source, ProductInOrder.class);
+            TableUtils.createTableIfNotExists(source, Person.class);
+            TableUtils.createTableIfNotExists(source, Client.class);
+            TableUtils.createTableIfNotExists(source, Grade.class);
+            TableUtils.createTableIfNotExists(source, Employee.class);
 
             Dao<Brand, Long> brandDao = DaoManager.createDao(source, Brand.class);
             Dao<Product, Long> productDao = DaoManager.createDao(source, Product.class);
@@ -69,6 +81,11 @@ public class AppSystem
             Dao<Equipment, Long> equipmentDao = DaoManager.createDao(source, Equipment.class);
             Dao<Order, Long> orderDao = DaoManager.createDao(source, Order.class);
             Dao<ProductInOrder, Long> productInOrderDao = DaoManager.createDao(source, ProductInOrder.class);
+            Dao<Person, Long> personDao = DaoManager.createDao(source, Person.class);
+            Dao<Client, Long> clientDao = DaoManager.createDao(source, Client.class);
+            Dao<Grade, Long> gradeDao = DaoManager.createDao(source, Grade.class);
+            Dao<Employee, Long> employeeDao = DaoManager.createDao(source, Employee.class);
+
 
             brands = brandDao.queryForAll();
             products = productDao.queryForAll();
@@ -81,6 +98,10 @@ public class AppSystem
             equipments = equipmentDao.queryForAll();
             orders = orderDao.queryForAll();
             productsInOrders = productInOrderDao.queryForAll();
+            people = personDao.queryForAll();
+            clients = clientDao.queryForAll();
+            grades = gradeDao.queryForAll();
+            employees = employeeDao.queryForAll();
 
             source.close();
         }
@@ -615,4 +636,8 @@ public class AppSystem
     public List<Equipment> getEquipments() { return equipments; }
     public List<Order> getOrders() { return orders; }
     public List<ProductInOrder> getProductsInOrders() { return productsInOrders; }
+    public List<Person> getPeople() { return people; }
+    public List<Client> getClients() { return clients; }
+    public List<Grade> getGrades() { return grades; }
+    public List<Employee> getEmployees() { return employees; }
 }
