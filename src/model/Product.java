@@ -6,9 +6,8 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
-public abstract class Product
+public class Product
 {
-
     @DatabaseField(generatedId = true)
     public long id;
     @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)

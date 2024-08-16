@@ -352,7 +352,7 @@ public class AppSystem
             JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
             Dao<Drug, Long> drugDao = DaoManager.createDao(destination, Drug.class);
 
-            if (drug.id <= 0)
+            if (drug.product.id <= 0)
             {
                 drugDao.create(drug);
                 drugs.add(drug);
@@ -444,7 +444,7 @@ public class AppSystem
             JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
             Dao<Supplement, Long> supplementDao = DaoManager.createDao(destination, Supplement.class);
 
-            if (supplement.id <= 0)
+            if (supplement.product.id <= 0)
             {
                 supplementDao.create(supplement);
                 supplements.add(supplement);
@@ -490,7 +490,7 @@ public class AppSystem
             JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
             Dao<Equipment, Long> equipmentDao = DaoManager.createDao(destination, Equipment.class);
 
-            if (equipment.id <= 0)
+            if (equipment.product.id <= 0)
             {
                 equipmentDao.create(equipment);
                 equipments.add(equipment);

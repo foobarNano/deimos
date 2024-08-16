@@ -16,5 +16,5 @@ public class Warehouse
     public double sales_tax;
 
     @ForeignCollectionField(eager = false)
-    public ForeignCollection<ProductInOrder> productsStored;
+    public ForeignCollection<ProductInWarehouse> productsStored;
 }

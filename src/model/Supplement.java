@@ -2,8 +2,11 @@ package model;
 
 import com.j256.ormlite.field.DatabaseField;
 
-public class Supplement extends Product
+public class Supplement
 {
-    @DatabaseField(canBeNull = false)
-    Designation designations;
+    @DatabaseField(foreign = true, canBeNull = false)
+    public Product product;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
+    Designation designation;
 }

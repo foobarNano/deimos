@@ -8,12 +8,15 @@ public class Employee extends Person
 {
     static double min_wage = 10000d;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    @DatabaseField(foreign = true, canBeNull = false)
+    Product product;
+
+    @DatabaseField(canBeNull = false)
     Position position;
     @DatabaseField
     double wage;
 
-    enum Position
+    public enum Position
     {
         Worker,
         Admin,

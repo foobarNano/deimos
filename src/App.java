@@ -1,10 +1,14 @@
 import controller.AppSystem;
+import view.GraphicalView;
 
 public class App
 {
     public static void main(String[] args)
     {
-        AppSystem as = new AppSystem();
-        as.pullDB();
+        AppSystem sys = new AppSystem();
+        GraphicalView view = new GraphicalView(sys);
+
+        sys.pullDB();
+        view.run();
     }
 }
