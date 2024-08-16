@@ -22,13 +22,13 @@ public class Order
     Timestamp completed;
 
     @ForeignCollectionField
-    ForeignCollection<Product> products;
+    ForeignCollection<ProductInOrder> productsOrdered;
 
     double getValue()
     {
         double sum = 0d;
 
-        for (Product p : products) { sum += p.value; }
+        for (ProductInOrder p : productsOrdered) { sum += p.product.value; }
 
         return sum;
     }

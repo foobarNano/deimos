@@ -22,4 +22,7 @@ public abstract class Product
 
     @ForeignCollectionField(eager = false)
     public ForeignCollection<ProductInWarehouse> warehousesStoring;
+
+    @ForeignCollectionField(eager = false)
+    public ForeignCollection<ProductInOrder> ordersContaining;
 }

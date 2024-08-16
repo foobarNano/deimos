@@ -2,12 +2,20 @@ package model;
 
 import java.util.List;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable
 class Client extends Person
 {
+    @DatabaseField(canBeNull = false, unique = false)
     String cryptonym;
+    @DatabaseField(canBeNull = false)
     String contact_address;
+    @DatabaseField
     String delivery_address;
 
+    
     List<Order> orders;
 
     int getScore()

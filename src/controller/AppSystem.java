@@ -16,6 +16,7 @@ import model.Equipment;
 import model.Ingredient;
 import model.Order;
 import model.Product;
+import model.ProductInOrder;
 import model.ProductInWarehouse;
 import model.Supplement;
 import model.Warehouse;
@@ -37,6 +38,7 @@ public class AppSystem
     private List<Designation> designations = null;
     private List<Equipment> equipments = null;
     private List<Order> orders = null;
+    private List<ProductInOrder> productsInOrders = null;
 
     public void pullDB()
     {
@@ -54,6 +56,7 @@ public class AppSystem
             TableUtils.createTableIfNotExists(source, Supplement.class);
             TableUtils.createTableIfNotExists(source, Equipment.class);
             TableUtils.createTableIfNotExists(source, Order.class);
+            TableUtils.createTableIfNotExists(source, ProductInOrder.class);
 
             Dao<Brand, Long> brandDao = DaoManager.createDao(source, Brand.class);
             Dao<Product, Long> productDao = DaoManager.createDao(source, Product.class);
@@ -65,6 +68,7 @@ public class AppSystem
             Dao<Supplement, Long> supplementDao = DaoManager.createDao(source, Supplement.class);
             Dao<Equipment, Long> equipmentDao = DaoManager.createDao(source, Equipment.class);
             Dao<Order, Long> orderDao = DaoManager.createDao(source, Order.class);
+            Dao<ProductInOrder, Long> productInOrderDao = DaoManager.createDao(source, ProductInOrder.class);
 
             brands = brandDao.queryForAll();
             products = productDao.queryForAll();
@@ -76,6 +80,7 @@ public class AppSystem
             supplements = supplementDao.queryForAll();
             equipments = equipmentDao.queryForAll();
             orders = orderDao.queryForAll();
+            productsInOrders = productInOrderDao.queryForAll();
 
             source.close();
         }
@@ -548,6 +553,56 @@ public class AppSystem
             return 1;
         }
     }
+
+    public int pushProductInOrder(ProductInOrder pio)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<ProductInOrder, Long> pioDao = DaoManager.createDao(destination, ProductInOrder.class);
+
+            Map<String, Object> fieldValues = new HashMap<>();
+            fieldValues.put("product_id", pio.product.id);
+            fieldValues.put("order_id", pio.order.id);
+
+            if (pioDao.queryForFieldValues(fieldValues).isEmpty())
+            {
+                pioDao.create(pio);
+                productsInOrders.add(pio);
+            }
+            else
+            {
+                pioDao.update(pio);
+            }
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public int popProductInOrder(ProductInOrder pio)
+    {
+        try
+        {
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            Dao<ProductInOrder, Long> pioDao = DaoManager.createDao(destination, ProductInOrder.class);
+
+            pioDao.delete(pio);
+
+            destination.close();
+            return 0;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
+    }
     
     public List<Brand> getBrands() { return brands; }
     public List<Product> getProducts() { return products; }
@@ -558,4 +613,6 @@ public class AppSystem
     public List<Supplement> getSupplements() { return supplements; }
     public List<Designation> getDesignations() { return designations; }
     public List<Equipment> getEquipments() { return equipments; }
+    public List<Order> getOrders() { return orders; }
+    public List<ProductInOrder> getProductsInOrders() { return productsInOrders; }
 }
