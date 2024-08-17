@@ -10,11 +10,11 @@ public class Drug
     public Product product;
 
     @DatabaseField
-    boolean is_prescription;
+    public boolean is_prescription;
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    Ingredient ingredient;
+    public Ingredient ingredient;
     @DatabaseField
-    int milligrams;
+    public int milligrams;
     @DatabaseField
-    int doses;
+    public int doses;
 }
