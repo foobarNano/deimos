@@ -27,10 +27,7 @@ import model.Warehouse;
 
 public class AppSystem
 {
-    // Rozwiązanie tymczasowe
-    private final String URL = "jdbc:mysql://localhost:3306/deimosdb?useSSL=false&serverTimezone=UTC";
-    private final String UN = "default";
-    private final String PW = "";
+    private final String URL = "jdbc:sqlite:res/deimos.db";
 
     private List<Brand> brands = null;
     private List<Product> products = null;
@@ -52,7 +49,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource source = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource source = new JdbcPooledConnectionSource(URL);
 
             TableUtils.createTableIfNotExists(source, Brand.class);
             TableUtils.createTableIfNotExists(source, Product.class);
@@ -115,7 +112,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Brand, Long> brandDao = DaoManager.createDao(destination, Brand.class);
 
             if (brand.id <= 0)
@@ -142,7 +139,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Brand, Long> brandDao = DaoManager.createDao(destination, Brand.class);
 
             brandDao.delete(brand);
@@ -161,7 +158,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Product, Long> productDao = DaoManager.createDao(destination, Product.class);
 
             if (product.id <= 0)
@@ -188,7 +185,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Product, Long> productDao = DaoManager.createDao(destination, Product.class);
 
             productDao.delete(product);
@@ -207,7 +204,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Warehouse, Long> warehouseDao = DaoManager.createDao(destination, Warehouse.class);
 
             if (warehouse.id <= 0)
@@ -234,7 +231,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Warehouse, Long> warehouseDao = DaoManager.createDao(destination, Warehouse.class);
 
             warehouseDao.delete(warehouse);
@@ -253,7 +250,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<ProductInWarehouse, Long> piwDao = DaoManager.createDao(destination, ProductInWarehouse.class);
 
             Map<String, Object> fieldValues = new HashMap<>();
@@ -284,7 +281,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<ProductInWarehouse, Long> piwDao = DaoManager.createDao(destination, ProductInWarehouse.class);
 
             piwDao.delete(piw);
@@ -303,7 +300,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Ingredient, Long> ingredientDao = DaoManager.createDao(destination, Ingredient.class);
 
             if (ingredient.id <= 0)
@@ -330,7 +327,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Ingredient, Long> ingredientDao = DaoManager.createDao(destination, Ingredient.class);
 
             ingredientDao.delete(ingredient);
@@ -349,7 +346,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Drug, Long> drugDao = DaoManager.createDao(destination, Drug.class);
 
             if (drug.id <= 0)
@@ -376,7 +373,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Drug, Long> drugDao = DaoManager.createDao(destination, Drug.class);
 
             drugDao.delete(drug);
@@ -395,7 +392,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Designation, Long> designationDao = DaoManager.createDao(destination, Designation.class);
 
             if (designation.id <= 0)
@@ -422,7 +419,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Designation, Long> designationDao = DaoManager.createDao(destination, Designation.class);
 
             designationDao.delete(designation);
@@ -441,7 +438,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Supplement, Long> supplementDao = DaoManager.createDao(destination, Supplement.class);
 
             if (supplement.id <= 0)
@@ -468,7 +465,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Supplement, Long> supplementDao = DaoManager.createDao(destination, Supplement.class);
 
             supplementDao.delete(supplement);
@@ -487,7 +484,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Equipment, Long> equipmentDao = DaoManager.createDao(destination, Equipment.class);
 
             if (equipment.id <= 0)
@@ -514,7 +511,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Equipment, Long> equipmentDao = DaoManager.createDao(destination, Equipment.class);
 
             equipmentDao.delete(equipment);
@@ -533,7 +530,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Order, Long> orderDao = DaoManager.createDao(destination, Order.class);
 
             if (order.id <= 0)
@@ -560,7 +557,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Order, Long> orderDao = DaoManager.createDao(destination, Order.class);
 
             orderDao.delete(order);
@@ -579,7 +576,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<ProductInOrder, Long> pioDao = DaoManager.createDao(destination, ProductInOrder.class);
 
             Map<String, Object> fieldValues = new HashMap<>();
@@ -610,7 +607,7 @@ public class AppSystem
     {
         try
         {
-            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL, UN, PW);
+            JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<ProductInOrder, Long> pioDao = DaoManager.createDao(destination, ProductInOrder.class);
 
             pioDao.delete(pio);
