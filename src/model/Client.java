@@ -8,12 +8,12 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable
 public class Client extends Person
 {
-    @DatabaseField(canBeNull = false, unique = false)
-    String cryptonym;
     @DatabaseField(canBeNull = false)
-    String contact_address;
+    public String cryptonym;
+    @DatabaseField(canBeNull = false)
+    public String contact_address;
     @DatabaseField
-    String delivery_address;
+    public String delivery_address;
 
     @ForeignCollectionField(eager = false)
     ForeignCollection<Order> orders;

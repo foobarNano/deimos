@@ -9,6 +9,9 @@ public class Drug
     @DatabaseField(foreign = true, canBeNull = false)
     public Product product;
 
+    @DatabaseField(generatedId = true)
+    public long id;
+
     @DatabaseField
     public boolean is_prescription;
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
@@ -17,4 +20,10 @@ public class Drug
     public int milligrams;
     @DatabaseField
     public int doses;
+
+    public Drug() {}
+    public Drug(Product product)
+    {
+        this.product = product;
+    }
 }

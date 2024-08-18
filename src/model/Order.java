@@ -12,19 +12,19 @@ public class Order
 {
     @DatabaseField(generatedId = true)
     public long id;
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    Client client;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, foreignAutoCreate = true)
+    public Client client;
     @DatabaseField
-    Timestamp placed;
+    public Timestamp placed;
     @DatabaseField
-    Timestamp confirmed;
+    public Timestamp confirmed;
     @DatabaseField
-    Timestamp completed;
+    public Timestamp completed;
 
-    @ForeignCollectionField(eager = false)
-    ForeignCollection<ProductInOrder> productsOrdered;
+    @ForeignCollectionField(eager = true)
+    public ForeignCollection<ProductInOrder> productsOrdered;
 
-    double getValue()
+    public double getValue()
     {
         double sum = 0d;
 

@@ -11,7 +11,7 @@ public class Ingredient    // For normalization purposes
     @DatabaseField(generatedId = true)
     public long id;
     @DatabaseField
-    String name;
+    public String name;
 
     @ForeignCollectionField(eager = false)
     ForeignCollection<Drug> drugs;

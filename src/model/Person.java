@@ -4,12 +4,12 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
-public abstract class Person
+public class Person
 {
     @DatabaseField(generatedId = true)
-    long id;
+    public long id;
     @DatabaseField(canBeNull = true, uniqueCombo = true)
-    String first_name;
+    public String first_name;
     @DatabaseField(canBeNull = false, uniqueCombo = true)
-    String last_name;
+    public String last_name;
 }

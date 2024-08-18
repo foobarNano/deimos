@@ -9,6 +9,9 @@ public class Equipment
     @DatabaseField(foreign = true, canBeNull = false)
     public Product product;
 
+    @DatabaseField(generatedId = true)
+    public long id;
+
     @DatabaseField(canBeNull = false)
     public Type type;
 
@@ -17,5 +20,11 @@ public class Equipment
         Dressing,
         Accessory,
         Software
+    }
+
+    public Equipment() {}
+    public Equipment(Product product)
+    {
+        this.product = product;
     }
 }

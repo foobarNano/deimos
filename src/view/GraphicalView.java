@@ -1,21 +1,24 @@
 package view;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import javax.swing.table.DefaultTableModel;
@@ -23,6 +26,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import controller.AppSystem;
+import model.Client;
+import model.Order;
+import model.Product;
+import model.ProductInOrder;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,15 +42,25 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class GraphicalView implements Runnable
@@ -57,6 +74,9 @@ public class GraphicalView implements Runnable
 
     private static final Color BG_COLOR = new Color(0x2e2e2e);
     private static final Color FG_COLOR = new Color(0xfafafa);
+
+    private Map<Product, Integer> cart = new HashMap<>();
+    private JLabel totalLabel = new JLabel("Total: CR 0");
 
     public GraphicalView(AppSystem system)
     {
@@ -94,7 +114,6 @@ public class GraphicalView implements Runnable
         try 
         {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-            SwingUtilities.updateComponentTreeUI(frame);
         }
         catch (Exception e) { e.printStackTrace(); }
     }
@@ -105,7 +124,7 @@ public class GraphicalView implements Runnable
         frame = new JFrame("Deimos Pharmaceutical");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(new Color(30, 30, 30));
-
+        
         JLabel logoLabel = new JLabel();
         ImageIcon scaledIcon = new ImageIcon(logoIcon.getImage().getScaledInstance(250, 100, Image.SCALE_SMOOTH));
         logoLabel.setIcon(scaledIcon);
@@ -117,10 +136,22 @@ public class GraphicalView implements Runnable
         tabbedPane.addTab("Welcome", prepareWelcome());
         tabbedPane.addTab("Store", prepareStore());
         tabbedPane.addTab("Manage", prepareEmployeePanel());
-
+        
         frame.add(tabbedPane);
         frame.setSize(1280, 720); 
         frame.setVisible(true);
+    }
+    
+    private int getTotal(Map<Product, Integer> products)
+    {
+        int total = 0;
+
+        for (Product p : products.keySet())
+        {
+            total += (p.value * products.get(p));
+        }
+
+        return total;
     }
 
     private JPanel prepareWelcome()
@@ -148,8 +179,6 @@ public class GraphicalView implements Runnable
         textLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
         textPanel.add(textLabel);
 
-        Dimension buttonDimension = new Dimension(200, 50);
-
         JButton storeButton = new CustomButton("Store");
         JButton manageButton = new CustomButton("Employee Panel");
 
@@ -167,11 +196,93 @@ public class GraphicalView implements Runnable
 
     private JPanel prepareStore()
     {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BG_COLOR);
         panel.setForeground(FG_COLOR);
 
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setBackground(BG_COLOR);
+        panel.setForeground(FG_COLOR);
+
+        panel.addFocusListener(new FocusListener()
+        {
+            @Override
+            public void focusGained(FocusEvent e)
+            {
+                totalLabel.setText("Total: CR " + getTotal(cart));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {}
+        });
+
+        JButton cartButton = new CustomButton("View Cart");
+        totalLabel.setText("Total: CR " + getTotal(cart));
+        applyCustomStyle(totalLabel);
+
+        cartButton.addActionListener(e -> showCartPopup());
+
+        topPanel.add(cartButton);
+        topPanel.add(totalLabel);
+
+        String[] columnNames = {"ID", "Brand", "Name", "Value", "Description", "Action"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0)
+        {
+            @Override
+            public boolean isCellEditable(int row, int column) 
+            {
+                return column == 5;
+            }
+        };
+
+        JTable table = new JTable(tableModel);
+        table.setFillsViewportHeight(true);
+        table.setRowHeight(30);
+        
+        applyCustomStyle(table);
+        applyCustomStyle(table.getTableHeader());
+        table.getTableHeader().setPreferredSize(new Dimension(200, 30));
+        table.setBackground(BG_COLOR.darker());
+
+        for (Product p : SYSTEM.getProducts())
+        {
+            tableModel.addRow(new Object[] { p.id, p.brand.name, p.name, p.value, p.description, "Add to cart" });
+        }
+
+        table.getColumnModel().getColumn(0).setMaxWidth(50);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setMaxWidth(160);
+        table.getColumnModel().getColumn(1).setPreferredWidth(160);
+        table.getColumnModel().getColumn(2).setMaxWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(3).setMaxWidth(100);
+        table.getColumnModel().getColumn(3).setPreferredWidth(100);
+        table.getColumnModel().getColumn(5).setMaxWidth(200);
+        table.getColumnModel().getColumn(5).setPreferredWidth(200);
+        table.getColumnModel().getColumn(5).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(5).setCellEditor(new ButtonEditor(new JCheckBox())
+        {
+            @Override
+            protected void onButtonClick()
+            {
+                int row = table.convertRowIndexToModel(table.getSelectedRow());
+                Product p = SYSTEM.getProducts().get(row);
+
+                if (cart.containsKey(p))
+                {
+                    cart.put(p, cart.get(p) + 1);
+                }
+                else
+                {
+                    cart.put(p, 1);
+                }
+
+                totalLabel.setText("Total: CR " + getTotal(cart));
+            };
+        });
+
+        panel.add(topPanel, BorderLayout.NORTH);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
         return panel;
     }
@@ -186,16 +297,35 @@ public class GraphicalView implements Runnable
         buttonPanel.setBackground(BG_COLOR);
         buttonPanel.setForeground(FG_COLOR);
 
-        JButton addButton = new CustomButton("Refresh");
-        JButton editButton = new CustomButton("Edit");
-        JButton deleteButton = new CustomButton("Cancel");
+        JButton refreshButton = new CustomButton("Refresh");
+        JButton editButton = new CustomButton("Edit [WIP]");
+        JButton cancelButton = new CustomButton("Cancel [WIP]");
+        JLabel hintLabel = new JLabel("Select a record and then select the desired option");
+        applyCustomStyle(hintLabel);
+        hintLabel.setForeground(FG_COLOR.darker());
+        hintLabel.setBorder(new EmptyBorder(5, 20, 5, 0));
 
-        buttonPanel.add(addButton);
+        JPanel hintPanel = new JPanel(new BorderLayout());
+        hintPanel.add(hintLabel, BorderLayout.CENTER);
+        applyCustomStyle(hintPanel);
+        hintPanel.setMinimumSize(new Dimension(300, 0));
+        hintPanel.setPreferredSize(new Dimension(600, 50));
+
+        buttonPanel.add(refreshButton);
         buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(hintPanel);
 
-        String[] columnNames = {"ID", "Client", "Value", "Actions"};
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+        String[] columnNames = {"ID", "Client", "Value", "Status", "Timestamp", "Products"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0)
+        {
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return column == 5;
+            }
+        };
+
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setRowHeight(24);
@@ -203,31 +333,391 @@ public class GraphicalView implements Runnable
         applyCustomStyle(table);
         applyCustomStyle(table.getTableHeader());
         table.getTableHeader().setPreferredSize(new Dimension(200, 30));
-        table.setBackground(BG_COLOR.brighter());
-        
-        tableModel.addRow(new Object[]{1L, "Client A", 100.00, "View Details"});
-        tableModel.addRow(new Object[]{2L, "Client B", 200.00, "View Details"});
+        table.setBackground(BG_COLOR.darker());
 
-        TableColumn actionColumn = table.getColumnModel().getColumn(3);
+        TableColumn actionColumn = table.getColumnModel().getColumn(5);
         actionColumn.setCellRenderer(new ButtonRenderer());
-        actionColumn.setCellEditor(new ButtonEditor(new JCheckBox()));
+        actionColumn.setCellEditor(new ButtonEditor(new JCheckBox())
+        {
+            @Override
+            protected void onButtonClick()
+            {
+                int row = table.convertRowIndexToModel(table.getSelectedRow());
+                showOrderedProductsPopup(SYSTEM.getOrders().get(row));
+            }
+        });
+
+        table.getColumnModel().getColumn(0).setMaxWidth(50);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setMaxWidth(160);
+        table.getColumnModel().getColumn(1).setPreferredWidth(160);
+        table.getColumnModel().getColumn(2).setMaxWidth(150);
+        table.getColumnModel().getColumn(2).setPreferredWidth(150);
+        table.getColumnModel().getColumn(3).setMaxWidth(150);
+        table.getColumnModel().getColumn(3).setPreferredWidth(150);
+        table.getColumnModel().getColumn(5).setMaxWidth(200);
+        table.getColumnModel().getColumn(5).setPreferredWidth(200);
+
+        refreshButton.addActionListener(e ->
+        {
+            SYSTEM.pullDB();
+            tableModel.setRowCount(0);
+
+            for (Order o : SYSTEM.getOrders())
+            {
+                String status = (o.completed != null) ? "Completed" : (o.confirmed != null) ? "Confirmed" : "Placed";
+                Timestamp timestamp = (o.completed != null) ? o.completed : (o.confirmed != null) ? o.confirmed : o.placed;
+                tableModel.addRow(new Object[] { o.id, o.client.cryptonym, o.getValue(), status, timestamp });
+            }
+        });
+
+        editButton.addActionListener(e ->
+        {
+            int row = table.convertRowIndexToModel(table.getSelectedRow());
+            if (row < 0 || row > table.getRowCount()) return;
+            showEditOrderPopup(SYSTEM.getOrders().get(row));
+        });
+
+        cancelButton.addActionListener(e ->
+        {
+            int row = table.convertRowIndexToModel(table.getSelectedRow());
+            if (row < 0 || row > table.getRowCount()) return;
+            showConfirmPopup(SYSTEM.getOrders().get(row));
+        });
 
         panel.add(buttonPanel, BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        refreshButton.doClick();
 
         return panel;
     }
 
-    private static JDialog makePopupWindow(String title, Component content)
+    public void showConfirmPopup(Order order)
     {
-        JDialog dialog = new JDialog();
-        dialog.setTitle(title);
-        dialog.setSize(300, 200);
-        dialog.setLocationRelativeTo(null);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.add(content);
+        JFrame removeFrame = new JFrame("Order cancellation");
 
-        return dialog;
+        JLabel messageLabel = new JLabel("Are you sure you wish to cancel order " + order.id + "?");
+        applyCustomStyle(messageLabel);
+        messageLabel.setPreferredSize(new Dimension(400, 100));
+        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        JButton yesButton = new CustomButton("Yes");
+        JButton noButton = new CustomButton("No");
+
+        Dimension dimension = new Dimension(120, 40);
+        yesButton.setPreferredSize(dimension);
+        noButton.setPreferredSize(dimension);
+
+        yesButton.setBorder(new EmptyBorder(20, 20, 20, 20));
+        noButton.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(yesButton);
+        buttonPanel.add(noButton);
+
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BorderLayout());
+        contentPanel.add(messageLabel, BorderLayout.NORTH);
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        yesButton.addActionListener(e ->
+        {
+            SYSTEM.popOrder(order);
+            removeFrame.dispose();
+        });
+
+        noButton.addActionListener(e ->
+        {
+            removeFrame.dispose();
+        });
+
+        removeFrame.setSize(500, 300);
+        removeFrame.setMinimumSize(new Dimension(500, 300));
+        removeFrame.setLocationRelativeTo(null);
+        removeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        removeFrame.setAlwaysOnTop(true);
+
+        removeFrame.add(contentPanel);
+
+        removeFrame.setVisible(true);
+    }
+
+    private void showCartPopup()
+    {
+        String[] columnNames = {"Brand", "Name", "Price", "Count", "Remove"};
+        DefaultTableModel cartTableModel = new DefaultTableModel(columnNames, 0)
+        {
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return column == 4;
+            }
+
+            @Override
+            public void setValueAt(Object aValue, int row, int column)
+            {
+                super.setValueAt(aValue, row, column);
+                totalLabel.setText("Total: CR " + getTotal(cart));
+            }
+        };
+
+        List<Product> removed = new ArrayList<>();
+
+        for (Product product : cart.keySet())
+        {
+            if (cart.get(product) == 0) removed.add(product);
+            else cartTableModel.addRow(new Object[]{product.brand.name, product.name, product.value, cart.get(product), "-1"});
+        }
+
+        for (Product product : removed)
+        {
+            cart.remove(product);
+        }
+
+        JTable cartTable = new JTable(cartTableModel);
+        cartTable.setFillsViewportHeight(true);
+        cartTable.setRowHeight(24);
+        
+        applyCustomStyle(cartTable);
+        applyCustomStyle(cartTable.getTableHeader());
+        cartTable.getTableHeader().setPreferredSize(new Dimension(200, 30));
+        cartTable.setBackground(BG_COLOR.darker());
+
+        cartTable.getColumnModel().getColumn(0).setMaxWidth(160);
+        cartTable.getColumnModel().getColumn(0).setPreferredWidth(160);
+        cartTable.getColumnModel().getColumn(1).setMaxWidth(200);
+        cartTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+        cartTable.getColumnModel().getColumn(2).setMaxWidth(80);
+        cartTable.getColumnModel().getColumn(2).setPreferredWidth(80);
+
+        TableColumn removeColumn = cartTable.getColumnModel().getColumn(4);
+        removeColumn.setCellRenderer(new ButtonRenderer());
+        removeColumn.setCellEditor(new ButtonEditor(new JCheckBox())
+        {
+            @Override
+            protected void onButtonClick()
+            {
+                try
+                {
+                    int row = cartTable.convertRowIndexToModel(cartTable.getSelectedRow());
+                    Product p = new ArrayList<>(cart.keySet()).get(row);
+                    Integer v = cart.get(p);
+
+                    if (v > 1)
+                    {
+                        cart.put(p, cart.get(p) - 1);
+                        cartTableModel.setValueAt(v-1, row, 3);
+                    }
+                    else if (v == 1)
+                    {
+                        cart.put(p, 0);
+                        cartTableModel.setValueAt(0, row, 3);
+                        ((JButton) cartTable.getValueAt(row, 4)).setEnabled(false);
+                    }
+                }
+                catch (Exception e) {}
+            }
+        });
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(new JScrollPane(cartTable), BorderLayout.CENTER);
+
+        CustomButton placeOrderButton = new CustomButton("Place Order");
+
+        CustomTextfield fname = new CustomTextfield("First name: ");
+        CustomTextfield lname = new CustomTextfield("Last name*: ");
+        CustomTextfield address = new CustomTextfield("Address*: ");
+        
+        JLabel info = new JLabel();
+        applyCustomStyle(info);
+        info.setFont(info.getFont().deriveFont(20f));
+        JPanel infoPanel = new JPanel(new BorderLayout());
+        infoPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        infoPanel.add(info, BorderLayout.CENTER);
+
+        JPanel subPanel = new JPanel(new FlowLayout());
+        subPanel.add(totalLabel);
+        subPanel.add(placeOrderButton);
+
+        JPanel underneath = new JPanel();
+        underneath.setLayout(new BoxLayout(underneath, BoxLayout.Y_AXIS));
+        underneath.setMinimumSize(new Dimension(500, 300));
+        underneath.add(fname);
+        underneath.add(lname);
+        underneath.add(address);
+        underneath.add(infoPanel);
+        underneath.add(subPanel);
+
+        placeOrderButton.addActionListener(e ->
+        {
+            if(lname.getText().isBlank() || address.getText().isBlank())
+            {
+                info.setForeground(Color.RED);
+                info.setText("Please fill the mandatory fields");
+            }
+            else
+            {
+                try
+                {
+                    cartTable.setForeground(FG_COLOR.darker());
+                    cartTable.setBackground(BG_COLOR.brighter());
+                    cartTable.removeColumn(removeColumn);
+                    cartTable.setEnabled(false);
+
+                    underneath.setBackground(BG_COLOR.brighter());
+                    underneath.setEnabled(false);
+                    fname.setEnabled(false);
+                    lname.setEnabled(false);
+                    address.setEnabled(false);
+                    subPanel.setEnabled(false);
+
+                    Client client = new Client();
+                    if (!fname.getText().isBlank()) client.first_name = fname.getText();
+                    client.last_name = lname.getText();
+                    client.cryptonym = client.last_name;
+                    client.contact_address = address.getText();
+
+                    Order order = new Order();
+                    order.client = client;
+                    order.placed = Timestamp.from(Instant.now());
+
+                    SYSTEM.pushOrder(order);
+
+                    order = SYSTEM.getOrders().getLast();
+
+                    for (Product p : cart.keySet())
+                    {
+                        int v = cart.get(p);
+
+                        ProductInOrder pio = new ProductInOrder();
+                        pio.order = order;
+                        pio.product = p;
+                        pio.count = v;
+
+                        SYSTEM.pushProductInOrder(pio);
+                    }
+
+                    cart.clear();
+                    totalLabel.setText("Total: CR " + getTotal(cart));
+
+                    info.setForeground(FG_COLOR);
+                    info.setText("Order placed!");
+                }
+                catch (Exception ee)
+                {
+                    info.setForeground(Color.RED);
+                    info.setText("Error while placing order :c");
+                }
+            }
+        });
+
+        panel.add(underneath, BorderLayout.SOUTH);
+
+        JFrame cartFrame = new JFrame("Cart");
+        cartFrame.setSize(500, 500);
+        cartFrame.setMinimumSize(new Dimension(500, 500));
+        cartFrame.setLocationRelativeTo(null);
+        cartFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        cartFrame.setAlwaysOnTop(true);
+
+        cartFrame.add(panel);
+
+        cartFrame.setVisible(true);
+    }
+
+    private void showEditOrderPopup(Order order)
+    {
+        JDialog dialog = new JDialog(frame, "Edit Order", true);
+        dialog.setLayout(new GridLayout(3, 1));
+        dialog.setSize(300, 150);
+        dialog.setLocationRelativeTo(frame);
+        dialog.setAlwaysOnTop(true);
+
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.add(new JLabel("Change order state:"));
+
+        String[] states = {"Placed", "Confirmed", "Completed"};
+        if (order.completed != null) states = Arrays.copyOfRange(states, 2, states.length);
+        else if (order.confirmed != null) states = Arrays.copyOfRange(states, 1, states.length);
+
+        JComboBox<String> comboBox = new JComboBox<>(states);
+        panel.add(comboBox);
+
+        JButton acceptButton = new JButton("Accept");
+        acceptButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                String selectedState = (String) comboBox.getSelectedItem();
+                
+                switch (selectedState)
+                {
+                    case "Placed":
+                        order.confirmed = null;
+                        order.completed = null;
+                        SYSTEM.pushOrder(order);
+                        break;
+                    case "Confirmed":
+                        order.confirmed = Timestamp.from(Instant.now());
+                        SYSTEM.pushOrder(order);
+                        break;
+                    case "Completed":
+                        order.completed = Timestamp.from(Instant.now());
+                        SYSTEM.pushOrder(order);
+                        break;
+                    default:
+                        break;
+                }
+
+                dialog.dispose();
+            }
+        });
+        panel.add(acceptButton);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
+    }
+
+    public class CustomTextfield extends JPanel
+    {
+        JLabel label;
+        JTextField textField;
+    
+        public CustomTextfield(String text)
+        {
+            setLayout(new BorderLayout());
+            applyCustomStyle(this);
+
+            label = new JLabel(text);
+            applyCustomStyle(label);
+            label.setBorder(new EmptyBorder(0, 20, 0, 20));
+
+            textField = new JTextField();
+            applyCustomStyle(textField);
+            label.setBorder(new EmptyBorder(0, 20, 0, 20));
+
+            add(label, BorderLayout.WEST);
+            add(textField, BorderLayout.CENTER);
+        }
+
+        public String getText()
+        {
+            return textField.getText();
+        }
+
+        public void setText(String text)
+        {
+            textField.setText(text);
+        }
+
+        public void setEnabled(boolean enabled)
+        {
+            label.setEnabled(enabled);
+            textField.setEnabled(enabled);
+            textField.setEditable(enabled);
+        }
     }
 
     static class CustomButton extends JButton
@@ -243,19 +733,25 @@ public class GraphicalView implements Runnable
         }
     }
 
-    class ButtonRenderer extends JButton implements TableCellRenderer {
-        public ButtonRenderer() {
+    class ButtonRenderer extends JButton implements TableCellRenderer
+    {
+        public ButtonRenderer()
+        {
             setOpaque(true);
             setBackground(BG_COLOR);
             setForeground(FG_COLOR);
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (isSelected) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+        {
+            if (isSelected)
+            {
                 setBackground(table.getSelectionBackground());
                 setForeground(table.getSelectionForeground());
-            } else {
+            }
+            else
+            {
                 setBackground(BG_COLOR);
                 setForeground(FG_COLOR);
             }
@@ -264,27 +760,31 @@ public class GraphicalView implements Runnable
         }
     }
 
-    // ButtonEditor for handling button clicks in the table
-    class ButtonEditor extends DefaultCellEditor {
-        private JButton button;
+    class ButtonEditor extends DefaultCellEditor
+    {
+        protected JButton button;
         private String label;
         private boolean isPushed;
         private JTable table;
 
-        public ButtonEditor(JCheckBox checkBox) {
+        public ButtonEditor(JCheckBox checkBox)
+        {
             super(checkBox);
             button = new JButton();
             button.setOpaque(true);
-            button.addActionListener(new ActionListener() {
+            button.addActionListener(new ActionListener()
+            {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent e)
+                {
                     onButtonClick();
                 }
             });
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
+        {
             this.table = table;
             label = (value == null) ? "" : value.toString();
             button.setText(label);
@@ -293,48 +793,73 @@ public class GraphicalView implements Runnable
         }
 
         @Override
-        public Object getCellEditorValue() {
+        public Object getCellEditorValue()
+        {
             return label;
         }
 
         @Override
-        public boolean stopCellEditing() {
+        public boolean stopCellEditing()
+        {
             isPushed = false;
             return super.stopCellEditing();
         }
 
         @Override
-        protected void fireEditingStopped() {
+        protected void fireEditingStopped()
+        {
             super.fireEditingStopped();
         }
 
-        private void onButtonClick() {
-            if (isPushed) {
+        protected void onButtonClick()
+        {
+            if (isPushed)
+            {
                 int row = table.convertRowIndexToModel(table.getSelectedRow());
-                showOrderedProductsPopup(row);
+                showOrderedProductsPopup(SYSTEM.getOrders().get(row));
             }
         }
     }
 
-    private void showOrderedProductsPopup(int row)
+    private void showOrderedProductsPopup(Order order)
     {
-        String[] columnNames = {"Product ID", "Product Name", "Price"};
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+        String[] columnNames = {"Product ID", "Product Name", "Price", "Count"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0)
+        {
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
 
         JTable productTable = new JTable(tableModel);
-        productTable.setBackground(BG_COLOR);
-        productTable.setForeground(FG_COLOR);
         productTable.setFillsViewportHeight(true);
-
+        productTable.setRowHeight(24);
         applyCustomStyle(productTable);
+        applyCustomStyle(productTable.getTableHeader());
+
+        for (ProductInOrder pio : order.productsOrdered)
+        {
+            Product p = pio.product;
+            tableModel.addRow(new Object[] { p.id, (p.brand.name + " " + p.name), p.value, pio.count });
+        }
+
+        productTable.getColumnModel().getColumn(0).setMaxWidth(80);
+        productTable.getColumnModel().getColumn(0).setPreferredWidth(80);
+        productTable.getColumnModel().getColumn(2).setMaxWidth(80);
+        productTable.getColumnModel().getColumn(2).setPreferredWidth(80);
+        productTable.getColumnModel().getColumn(3).setMaxWidth(80);
+        productTable.getColumnModel().getColumn(3).setPreferredWidth(80);
         
         JFrame popupFrame = new JFrame("Ordered Products");
-        popupFrame.setSize(400, 300);
+        popupFrame.setSize(600, 600);
         popupFrame.setLocationRelativeTo(null);
         popupFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        popupFrame.setAlwaysOnTop(true);
 
         popupFrame.add(new JScrollPane(productTable));
-        
+
         popupFrame.setVisible(true);
     }
 

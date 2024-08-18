@@ -24,4 +24,11 @@ public class Product
 
     @ForeignCollectionField(eager = false)
     public ForeignCollection<ProductInOrder> ordersContaining;
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        Product p = (Product) obj;
+        return id == p.id && name == p.name;
+    }
 }

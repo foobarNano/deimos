@@ -6,9 +6,12 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable
 public class ProductInOrder
 {
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
+    @DatabaseField(generatedId = true)
+    public long id;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false, uniqueCombo = true)
     public Product product;
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false, uniqueCombo = true)
     public Order order;
     
     @DatabaseField(canBeNull = false)

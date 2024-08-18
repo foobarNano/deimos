@@ -11,9 +11,9 @@ public class Designation
     @DatabaseField(generatedId = true)
     public long id;
     @DatabaseField(width = 64, canBeNull = false)
-    String short_description;
+    public String short_description;
     @DatabaseField(width = 512, canBeNull = true)
-    String long_description;
+    public String long_description;
 
     @ForeignCollectionField(eager = false)
     ForeignCollection<Supplement> supplements;
