@@ -629,22 +629,33 @@ public class GraphicalView implements Runnable
     private void showEditOrderPopup(Order order)
     {
         JDialog dialog = new JDialog(frame, "Edit Order", true);
-        dialog.setLayout(new GridLayout(3, 1));
-        dialog.setSize(300, 150);
+        dialog.setSize(300, 300);
         dialog.setLocationRelativeTo(frame);
         dialog.setAlwaysOnTop(true);
 
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel.add(new JLabel("Change order state:"));
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        JLabel label = new JLabel("Change order state:");
+        applyCustomStyle(label);
+        label.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panel.add(label, BorderLayout.NORTH);
 
         String[] states = {"Placed", "Confirmed", "Completed"};
         if (order.completed != null) states = Arrays.copyOfRange(states, 2, states.length);
         else if (order.confirmed != null) states = Arrays.copyOfRange(states, 1, states.length);
 
         JComboBox<String> comboBox = new JComboBox<>(states);
-        panel.add(comboBox);
+        applyCustomStyle(comboBox);
+        comboBox.setPreferredSize(new Dimension(200, 50));
+        JPanel subPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        subPanel.setPreferredSize(new Dimension(200,100));
+        subPanel.add(comboBox);
+        panel.add(subPanel, BorderLayout.CENTER);
 
-        JButton acceptButton = new JButton("Accept");
+        JButton acceptButton = new CustomButton("Accept");
+        acceptButton.setBorder(new EmptyBorder(20, 20, 20, 20));
         acceptButton.addActionListener(new ActionListener()
         {
             @Override
@@ -674,9 +685,9 @@ public class GraphicalView implements Runnable
                 dialog.dispose();
             }
         });
-        panel.add(acceptButton);
+        panel.add(acceptButton, BorderLayout.SOUTH);
 
-        dialog.add(panel);
+        dialog.setContentPane(panel);
         dialog.setVisible(true);
     }
 
