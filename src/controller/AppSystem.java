@@ -559,6 +559,12 @@ public class AppSystem
         {
             JdbcPooledConnectionSource destination = new JdbcPooledConnectionSource(URL);
             Dao<Order, Long> orderDao = DaoManager.createDao(destination, Order.class);
+            Dao<ProductInOrder, Long> pioDao = DaoManager.createDao(destination, ProductInOrder.class);
+
+            for (ProductInOrder pio : getProductsInOrders())
+            {
+                if (pio.order.id == order.id) popProductInOrder(pio);
+            }
 
             orderDao.delete(order);
 

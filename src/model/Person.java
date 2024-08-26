@@ -8,8 +8,8 @@ public class Person
 {
     @DatabaseField(generatedId = true)
     public long id;
-    @DatabaseField(canBeNull = true, uniqueCombo = true)
+    @DatabaseField(canBeNull = true)
     public String first_name;
-    @DatabaseField(canBeNull = false, uniqueCombo = true)
+    @DatabaseField(canBeNull = false)
     public String last_name;
 }
